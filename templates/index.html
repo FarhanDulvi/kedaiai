@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KedaiAI — Smart Assistant for Malaysian Businesses</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a',
+                            400: '#fbbf24', 500: '#f59e0b', 600: '#d97706',
+                        },
+                        my: { blue: '#010066', red: '#CC0001', yellow: '#F7D217' },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        }
+
+        /* Gradient background */
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            min-height: 100vh;
+        }
+
+        /* Animated gradient border */
+        .magic-border {
+            background: linear-gradient(135deg, #F7D217, #CC0001, #010066, #F7D217);
+            background-size: 300% 300%;
+            animation: shimmer 4s ease infinite;
+            padding: 2px;
+            border-radius: 1rem;
+        }
+
+        @keyframes shimmer {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        /* Glow effect */
+        .glow {
+            box-shadow: 0 0 40px rgba(247, 210, 23, 0.15);
+        }
+
+        /* Tab active state */
+        .tab-btn.active {
+            background: linear-gradient(135deg, #F7D217, #fbbf24);
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        /* Pulse animation for loading */
+        .pulse-dot {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .pulse-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .pulse-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+
+        /* Slide up animation */
+        .slide-up {
+            animation: slideUp 0.5s ease-out forwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Image upload zone */
+        .upload-zone {
+            border: 2px dashed rgba(247, 210, 23, 0.3);
+            transition: all 0.3s;
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: #F7D217;
+            background: rgba(247, 210, 23, 0.05);
+        }
+
+        /* Copy button feedback */
+        .copy-flash {
+            animation: flash 0.5s ease;
+        }
+
+        @keyframes flash {
+            0% {
+                background-color: rgba(34, 197, 94, 0.3);
+            }
+
+            100% {
+                background-color: transparent;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(247, 210, 23, 0.3);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body class="text-gray-100">
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- HEADER                                  -->
+    <!-- ═══════════════════════════════════════ -->
+    <header class="pt-8 pb-4 px-4 text-center">
+        <div class="inline-flex items-center gap-3 mb-3">
+            <div
+                class="w-12 h-12 rounded-xl bg-gradient-to-br from-my-yellow to-yellow-600 flex items-center justify-center text-2xl shadow-lg">
+                🏪
+            </div>
+            <h1 class="text-4xl font-extrabold tracking-tight">
+                <span class="text-my-yellow">Kedai</span><span class="text-white">AI</span>
+            </h1>
+        </div>
+        <p class="text-gray-400 text-lg max-w-xl mx-auto">
+            Multilingual AI assistant for Malaysian SMEs — understand &amp; reply to customers in
+            <span class="text-yellow-300 font-semibold">BM</span>,
+            <span class="text-red-400 font-semibold">EN</span>, &amp;
+            <span class="text-blue-400 font-semibold">中文</span> instantly
+        </p>
+        <div class="flex justify-center gap-2 mt-3 text-xs">
+            <span class="px-2 py-1 rounded-full bg-white/10 text-gray-400">Powered by Gemini 3 Flash Preview</span>
+            <span class="px-2 py-1 rounded-full bg-white/10 text-gray-400">Multimodal</span>
+            <span class="px-2 py-1 rounded-full bg-white/10 text-gray-400">Structured Output</span>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- MAIN CONTENT                            -->
+    <!-- ═══════════════════════════════════════ -->
+    <main class="max-w-7xl mx-auto px-4 pb-12 grid lg:grid-cols-2 gap-6 mt-4">
+
+        <!-- ─── LEFT: INPUT PANEL ─── -->
+        <div class="space-y-4">
+
+            <!-- Text Input -->
+            <div class="magic-border glow">
+                <div class="bg-slate-900 rounded-[14px] p-5">
+                    <label class="text-sm font-semibold text-gray-300 mb-2 block">
+                        📩 Customer Message
+                    </label>
+                    <textarea id="messageInput" rows="5"
+                        placeholder="Paste a customer message here...&#10;&#10;Example: Boss, nak order 2 nasi lemak extra sambal, 1 teh tarik kurang manis. Boleh deliver ke Bangsar tak?"
+                        class="w-full bg-slate-800/60 text-gray-100 rounded-lg p-4 border border-white/10 focus:border-my-yellow focus:ring-1 focus:ring-my-yellow/50 outline-none resize-none text-sm placeholder-gray-500 transition-all"></textarea>
+
+                    <!-- Image Upload -->
+                    <div class="mt-3">
+                        <label class="text-sm font-semibold text-gray-300 mb-2 block">
+                            📸 Or Upload Screenshot <span class="text-gray-500 font-normal">(WhatsApp, SMS, etc.)</span>
+                        </label>
+                        <div id="uploadZone"
+                            class="upload-zone rounded-lg p-4 text-center cursor-pointer transition-all"
+                            onclick="document.getElementById('imageInput').click()">
+                            <div id="uploadPlaceholder">
+                                <span class="text-gray-500 text-sm">Click or drag an image here</span>
+                            </div>
+                            <div id="imagePreviewContainer" class="hidden">
+                                <img id="imagePreview" class="max-h-40 mx-auto rounded-lg" />
+                                <button onclick="event.stopPropagation(); clearImage();"
+                                    class="mt-2 text-xs text-red-400 hover:text-red-300">✕ Remove image</button>
+                            </div>
+                        </div>
+                        <input type="file" id="imageInput" accept="image/*" class="hidden"
+                            onchange="handleImageUpload(event)" />
+                    </div>
+
+                    <!-- Analyze Button -->
+                    <button id="analyzeBtn" onclick="analyzeMessage()"
+                        class="mt-4 w-full py-3 px-6 rounded-lg font-bold text-lg bg-gradient-to-r from-my-yellow to-yellow-500 text-slate-900 hover:from-yellow-400 hover:to-yellow-600 transition-all transform hover:scale-[1.02] active:scale-95 shadow-lg shadow-yellow-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                        ⚡ Analyze &amp; Generate Replies
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sample Messages -->
+            <div class="bg-slate-900/50 rounded-xl p-4 border border-white/5">
+                <p class="text-xs font-semibold text-gray-400 mb-3 uppercase tracking-wider">🧪 Try Sample Messages</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <button onclick="loadSample(0)"
+                        class="text-left text-xs p-3 rounded-lg bg-slate-800/60 border border-white/5 hover:border-my-yellow/30 hover:bg-slate-800 transition-all">
+                        <span class="text-my-yellow font-semibold">Manglish</span>
+                        <p class="text-gray-400 mt-1 leading-relaxed">Boss, nak order 2 nasi lemak extra sambal, 1 teh
+                            tarik kurang manis. Boleh deliver ke Bangsar tak? Berapa total?</p>
+                    </button>
+                    <button onclick="loadSample(1)"
+                        class="text-left text-xs p-3 rounded-lg bg-slate-800/60 border border-white/5 hover:border-my-yellow/30 hover:bg-slate-800 transition-all">
+                        <span class="text-red-400 font-semibold">English</span>
+                        <p class="text-gray-400 mt-1 leading-relaxed">Hi, I'd like to order 3 roti canai and 2 teh tarik
+                            for delivery to Petaling Jaya. What's the total?</p>
+                    </button>
+                    <button onclick="loadSample(2)"
+                        class="text-left text-xs p-3 rounded-lg bg-slate-800/60 border border-white/5 hover:border-my-yellow/30 hover:bg-slate-800 transition-all">
+                        <span class="text-blue-400 font-semibold">Bahasa Melayu</span>
+                        <p class="text-gray-400 mt-1 leading-relaxed">Assalamualaikum, saya nak tempah untuk 5 orang
+                            buka puasa esok. Ada set menu tak? Tolong sediakan nasi ayam dan air sirap.</p>
+                    </button>
+                    <button onclick="loadSample(3)"
+                        class="text-left text-xs p-3 rounded-lg bg-slate-800/60 border border-white/5 hover:border-my-yellow/30 hover:bg-slate-800 transition-all">
+                        <span class="text-green-400 font-semibold">中文 Mandarin</span>
+                        <p class="text-gray-400 mt-1 leading-relaxed">老板，我要打包两份炒粿条加蛋，一份虾面，一杯薏米水。大概多少钱？可以送到 SS2 吗？</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="bg-slate-900/50 rounded-xl p-4 border border-white/5">
+                <p class="text-xs font-semibold text-gray-400 mb-3 uppercase tracking-wider">⚙️ How It Works</p>
+                <div class="flex items-center gap-3 text-xs text-gray-400">
+                    <div class="flex flex-col items-center gap-1">
+                        <div
+                            class="w-8 h-8 rounded-full bg-my-yellow/20 flex items-center justify-center text-my-yellow">
+                            📩</div>
+                        <span>Input</span>
+                    </div>
+                    <div class="text-gray-600">→</div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">🧠</div>
+                        <span>Gemini</span>
+                    </div>
+                    <div class="text-gray-600">→</div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">🔍</div>
+                        <span>Analyze</span>
+                    </div>
+                    <div class="text-gray-600">→</div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">💬</div>
+                        <span>Replies</span>
+                    </div>
+                    <div class="text-gray-600">→</div>
+                    <div class="flex flex-col items-center gap-1">
+                        <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">📋</div>
+                        <span>Orders</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── RIGHT: OUTPUT PANEL ─── -->
+        <div id="outputPanel">
+
+            <!-- Empty State -->
+            <div id="emptyState" class="h-full flex items-center justify-center">
+                <div class="text-center py-20">
+                    <div class="text-6xl mb-4 opacity-30">🏪</div>
+                    <p class="text-gray-500 text-lg">Paste a customer message or upload a screenshot</p>
+                    <p class="text-gray-600 text-sm mt-2">KedaiAI will analyze and generate multilingual replies</p>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden h-full flex items-center justify-center">
+                <div class="text-center py-20">
+                    <div class="flex justify-center gap-2 mb-4">
+                        <div class="w-3 h-3 rounded-full bg-my-yellow pulse-dot"></div>
+                        <div class="w-3 h-3 rounded-full bg-my-red pulse-dot"></div>
+                        <div class="w-3 h-3 rounded-full bg-blue-500 pulse-dot"></div>
+                    </div>
+                    <p class="text-gray-400">Gemini is analyzing the message...</p>
+                    <p class="text-gray-600 text-sm mt-1">Detecting language, intent, and generating replies</p>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div id="resultsState" class="hidden space-y-4 slide-up">
+
+                <!-- Analysis Summary -->
+                <div class="bg-slate-900/80 rounded-xl p-5 border border-white/5">
+                    <h3 class="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wider">🔍 Analysis</h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="bg-slate-800/60 rounded-lg p-3 text-center">
+                            <div class="text-xs text-gray-500 mb-1">Language</div>
+                            <div id="resLanguage" class="text-sm font-bold text-my-yellow">—</div>
+                        </div>
+                        <div class="bg-slate-800/60 rounded-lg p-3 text-center">
+                            <div class="text-xs text-gray-500 mb-1">Intent</div>
+                            <div id="resIntent" class="text-sm font-bold text-blue-400">—</div>
+                        </div>
+                        <div class="bg-slate-800/60 rounded-lg p-3 text-center">
+                            <div class="text-xs text-gray-500 mb-1">Sentiment</div>
+                            <div id="resSentiment" class="text-sm font-bold text-green-400">—</div>
+                        </div>
+                    </div>
+                    <p id="resSummary" class="mt-3 text-sm text-gray-400 leading-relaxed"></p>
+                </div>
+
+                <!-- Generated Replies -->
+                <div class="bg-slate-900/80 rounded-xl p-5 border border-white/5">
+                    <h3 class="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wider">💬 Ready-to-Send
+                        Replies</h3>
+
+                    <!-- Tabs -->
+                    <div class="flex gap-2 mb-3" id="replyTabs">
+                        <button
+                            class="tab-btn active px-4 py-2 rounded-lg text-xs font-semibold bg-white/10 text-gray-400 transition-all"
+                            data-tab="original" onclick="switchTab('original')">
+                            🎯 Best Match
+                        </button>
+                        <button
+                            class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold bg-white/10 text-gray-400 transition-all"
+                            data-tab="bm" onclick="switchTab('bm')">
+                            🇲🇾 BM
+                        </button>
+                        <button
+                            class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold bg-white/10 text-gray-400 transition-all"
+                            data-tab="en" onclick="switchTab('en')">
+                            🇬🇧 EN
+                        </button>
+                        <button
+                            class="tab-btn px-4 py-2 rounded-lg text-xs font-semibold bg-white/10 text-gray-400 transition-all"
+                            data-tab="mandarin" onclick="switchTab('mandarin')">
+                            🇨🇳 中文
+                        </button>
+                    </div>
+
+                    <!-- Reply Content -->
+                    <div id="replyContent"
+                        class="bg-slate-800/60 rounded-lg p-4 text-sm leading-relaxed text-gray-200 min-h-[80px]">
+                        —
+                    </div>
+
+                    <!-- Copy Button -->
+                    <button onclick="copyReply()"
+                        class="mt-3 w-full py-2 px-4 rounded-lg text-xs font-semibold bg-white/10 hover:bg-white/20 text-gray-300 transition-all flex items-center justify-center gap-2">
+                        <span id="copyIcon">📋</span> <span id="copyText">Copy to Clipboard</span>
+                    </button>
+                </div>
+
+                <!-- Order Extraction -->
+                <div id="orderSection" class="bg-slate-900/80 rounded-xl p-5 border border-white/5 hidden">
+                    <h3 class="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wider">📦 Extracted Order
+                    </h3>
+                    <div class="overflow-hidden rounded-lg border border-white/10">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-slate-800/80">
+                                    <th class="text-left p-3 text-gray-400 font-semibold">#</th>
+                                    <th class="text-left p-3 text-gray-400 font-semibold">Item</th>
+                                    <th class="text-center p-3 text-gray-400 font-semibold">Qty</th>
+                                    <th class="text-left p-3 text-gray-400 font-semibold">Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="orderTotal" class="mt-3 text-right text-sm font-bold text-my-yellow hidden">
+                    </div>
+                </div>
+
+                <!-- Business Tip -->
+                <div id="tipSection"
+                    class="bg-gradient-to-r from-my-yellow/10 to-yellow-600/5 rounded-xl p-4 border border-my-yellow/20 hidden">
+                    <p class="text-xs font-semibold text-my-yellow mb-1">💡 Business Tip</p>
+                    <p id="resTip" class="text-sm text-gray-300 leading-relaxed"></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- FOOTER                                  -->
+    <!-- ═══════════════════════════════════════ -->
+    <footer class="text-center py-6 text-xs text-gray-600 border-t border-white/5">
+        Built with ❤️ for Malaysian SMEs &nbsp;|&nbsp;
+        Powered by <span class="text-blue-400">Google Gemini</span> &nbsp;|&nbsp;
+        GDG Cloud KL Hackathon 2025 &nbsp;|&nbsp;
+        Deployed on <span class="text-green-400">Google Cloud Run</span>
+    </footer>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- JAVASCRIPT                              -->
+    <!-- ═══════════════════════════════════════ -->
+    <script>
+        // ── Sample Messages ──
+        const SAMPLES = [
+            "Boss, nak order 2 nasi lemak extra sambal, 1 teh tarik kurang manis. Boleh deliver ke Bangsar tak? Berapa total?",
+            "Hi, I'd like to order 3 roti canai and 2 teh tarik for delivery to Petaling Jaya. What's the total price?",
+            "Assalamualaikum, saya nak tempah untuk 5 orang buka puasa esok. Ada set menu tak? Tolong sediakan nasi ayam dan air sirap limau.",
+            "老板，我要打包两份炒粿条加蛋，一份虾面，一杯薏米水。大概多少钱？可以送到 SS2 吗？"
+        ];
+
+        function loadSample(index) {
+            document.getElementById('messageInput').value = SAMPLES[index];
+            document.getElementById('messageInput').focus();
+        }
+
+        // ── Image Handling ──
+        let currentImageData = null;
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                currentImageData = e.target.result;
+                document.getElementById('imagePreview').src = currentImageData;
+                document.getElementById('uploadPlaceholder').classList.add('hidden');
+                document.getElementById('imagePreviewContainer').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearImage() {
+            currentImageData = null;
+            document.getElementById('imageInput').value = '';
+            document.getElementById('uploadPlaceholder').classList.remove('hidden');
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+        }
+
+        // Drag and drop
+        const uploadZone = document.getElementById('uploadZone');
+        uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+        uploadZone.addEventListener('dragleave', () => { uploadZone.classList.remove('dragover'); });
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                document.getElementById('imageInput').files = e.dataTransfer.files;
+                handleImageUpload({ target: { files: [file] } });
+            }
+        });
+
+        // ── State Variables ──
+        let currentResult = null;
+        let currentTab = 'original';
+
+        // ── Main Analysis Function ──
+        async function analyzeMessage() {
+            const text = document.getElementById('messageInput').value.trim();
+            const image = currentImageData;
+
+            if (!text && !image) {
+                alert('Please enter a message or upload a screenshot.');
+                return;
+            }
+
+            // Show loading
+            const btn = document.getElementById('analyzeBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Analyzing...';
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('resultsState').classList.add('hidden');
+            document.getElementById('loadingState').classList.remove('hidden');
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, image }),
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Analysis failed');
+                }
+
+                currentResult = result.data;
+                displayResults(currentResult);
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+                document.getElementById('loadingState').classList.add('hidden');
+                document.getElementById('emptyState').classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '⚡ Analyze & Generate Replies';
+            }
+        }
+
+        // ── Display Results ──
+        function displayResults(data) {
+            document.getElementById('loadingState').classList.add('hidden');
+
+            // Analysis badges
+            document.getElementById('resLanguage').textContent = data.detected_language || '—';
+            document.getElementById('resIntent').textContent = data.customer_intent || '—';
+
+            // Sentiment with emoji
+            const sentimentMap = { positive: '😊 Positive', neutral: '😐 Neutral', negative: '😟 Negative' };
+            const sentimentEl = document.getElementById('resSentiment');
+            sentimentEl.textContent = sentimentMap[data.sentiment] || data.sentiment || '—';
+            sentimentEl.className = 'text-sm font-bold ' + (
+                data.sentiment === 'positive' ? 'text-green-400' :
+                    data.sentiment === 'negative' ? 'text-red-400' : 'text-gray-400'
+            );
+
+            document.getElementById('resSummary').textContent = data.intent_summary || '';
+
+            // Replies
+            currentTab = 'original';
+            updateReplyContent();
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('[data-tab="original"]').classList.add('active');
+
+            // Order table
+            const orderSection = document.getElementById('orderSection');
+            const orderBody = document.getElementById('orderTableBody');
+            orderBody.innerHTML = '';
+
+            if (data.order_items && data.order_items.length > 0) {
+                orderSection.classList.remove('hidden');
+                data.order_items.forEach((item, i) => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-t border-white/5';
+                    row.innerHTML = `
+                        <td class="p-3 text-gray-500">${i + 1}</td>
+                        <td class="p-3 text-gray-200 font-medium">${item.item}</td>
+                        <td class="p-3 text-center text-my-yellow font-bold">${item.quantity}</td>
+                        <td class="p-3 text-gray-400 text-xs">${item.special_instructions || '—'}</td>
+                    `;
+                    orderBody.appendChild(row);
+                });
+
+                // Show total if available
+                const totalEl = document.getElementById('orderTotal');
+                if (data.estimated_total && data.estimated_total !== 'null') {
+                    totalEl.textContent = 'Estimated Total: ' + data.estimated_total;
+                    totalEl.classList.remove('hidden');
+                } else {
+                    totalEl.classList.add('hidden');
+                }
+            } else {
+                orderSection.classList.add('hidden');
+            }
+
+            // Business tip
+            const tipSection = document.getElementById('tipSection');
+            if (data.business_tip) {
+                document.getElementById('resTip').textContent = data.business_tip;
+                tipSection.classList.remove('hidden');
+            } else {
+                tipSection.classList.add('hidden');
+            }
+
+            // Show results with animation
+            const resultsEl = document.getElementById('resultsState');
+            resultsEl.classList.remove('hidden', 'slide-up');
+            void resultsEl.offsetWidth; // trigger reflow
+            resultsEl.classList.add('slide-up');
+        }
+
+        // ── Tab Switching ──
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+            updateReplyContent();
+        }
+
+        function updateReplyContent() {
+            if (!currentResult) return;
+            const replyMap = {
+                original: currentResult.reply_original_language,
+                bm: currentResult.reply_bm,
+                en: currentResult.reply_en,
+                mandarin: currentResult.reply_mandarin,
+            };
+            document.getElementById('replyContent').textContent = replyMap[currentTab] || '—';
+        }
+
+        // ── Copy to Clipboard ──
+        async function copyReply() {
+            const text = document.getElementById('replyContent').textContent;
+            try {
+                await navigator.clipboard.writeText(text);
+                document.getElementById('copyIcon').textContent = '✅';
+                document.getElementById('copyText').textContent = 'Copied!';
+                document.getElementById('replyContent').classList.add('copy-flash');
+                setTimeout(() => {
+                    document.getElementById('copyIcon').textContent = '📋';
+                    document.getElementById('copyText').textContent = 'Copy to Clipboard';
+                    document.getElementById('replyContent').classList.remove('copy-flash');
+                }, 1500);
+            } catch {
+                // Fallback for older browsers
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            }
+        }
+
+        // ── Keyboard shortcut ──
+        document.getElementById('messageInput').addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                analyzeMessage();
+            }
+        });
+    </script>
+</body>
+
+</html>
